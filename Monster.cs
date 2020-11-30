@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Security.Cryptography;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.AI;
 
 //NOTE SPPED-EK VÁLTOZTATÁSA MAP MÉRETTŐL FÜGGŐEN
 public class Monster : MonoBehaviour
@@ -12,16 +13,22 @@ public class Monster : MonoBehaviour
 
     UnityEngine.AI.NavMeshAgent agent;
 
-    int xPos;
-    int zPos;
+    public int xPos_MIN;
+    public int xPos_MAX;
 
-    int next;
+    public int zPos_MIN;
+    public int zPos_MAX;
+
+    public static int next;
 
     public static System.Random ran;
 
     Animator anim;
 
     GameObject player;
+
+    //CODE FOR UNSTUCKING
+    //NavMeshPath navMeshPath;
 
     // Start is called before the first frame update
     void Start()
@@ -31,33 +38,53 @@ public class Monster : MonoBehaviour
         ran = new System.Random();
         next = 0;
         anim = GetComponent<Animator>();
+
+        //CODE FOR UNSTUCKING
+       // navMeshPath = new NavMeshPath();
     }
 
     // Update is called once per frame
     void Update()
     {
+
         if (next == 0)
         {
             //TODO THIS WILL BE THE PLAYER'S COORDINATES
-            agent.SetDestination(destination.transform.position);
+            agent.SetDestination(player.transform.position);
+
+            Vector3 dir = player.transform.position - transform.position;
+
+            dir.y = 0;
+
+            Quaternion rot = Quaternion.LookRotation(dir);
+
+            rot = Quaternion.AngleAxis(+90, Vector3.up) * rot;
+
+            float rotationspeed = 1f;
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotationspeed * Time.deltaTime);
         }
         else
         {
             //RANDOM COORDINATES ON MAP
+            Debug.Log("next: " + next);
+            Debug.Log("ENTERED TO RANDOM DEST");
             agent.SetDestination(destination.transform.position);
-            next -= 1;
+            // next -= 1;
+
+            anim.SetTrigger("Slow");
+
+
+            Vector3 dir = destination.transform.position - transform.position;
+
+            dir.y = 0;
+
+            Quaternion rot = Quaternion.LookRotation(dir);
+
+            rot = Quaternion.AngleAxis(+90, Vector3.up) * rot;
+
+            float rotationspeed = 1f;
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotationspeed * Time.deltaTime);
         }
-
-        Vector3 dir = destination.transform.position - transform.position;
-
-        dir.y = 0;
-
-        Quaternion rot = Quaternion.LookRotation(dir);
-
-        rot = Quaternion.AngleAxis(+90, Vector3.up) * rot;
-
-        float rotationspeed = 1f;
-        transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotationspeed * Time.deltaTime);
 
     }
 
@@ -66,18 +93,24 @@ public class Monster : MonoBehaviour
         //NOTE COLLIDER AND LIGHT REACH MUST HAVE THE SAME RADIUS/SIZE
         if (other.GetComponent<Light>() != null)
         {
-            if (other.GetComponent<Light>().isActiveAndEnabled)
+            if (other.GetComponent<Light>().isActiveAndEnabled && next == 0)
             {
-               // Debug.Log("Collision with Light");
+                // Debug.Log("Collision with Light");
 
-                xPos = Random.Range(-58, 30);
-                zPos = Random.Range(-51, 37);
+                 
+
+                Debug.Log("LIGHT COLLISION");
+
+              //  xPos = Random.Range(xPos_MIN, xPos_MAX);
+               // zPos = Random.Range(zPos_MIN, zPos_MAX);
 
                 agent.speed = 36;
 
                 agent.acceleration = 36;
 
                 anim.SetTrigger("Fast");
+
+                agent.SetDestination(destination.transform.position);
 
                 //TODO MONSTER SCREAM.PLAY
 
@@ -86,8 +119,8 @@ public class Monster : MonoBehaviour
                 return;
             }
         }
-        
-        if(other.gameObject == player)
+
+        if (other.gameObject == player && next == 0)
         {
             anim.SetTrigger("Attack");
         }
@@ -95,7 +128,7 @@ public class Monster : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        
+
         if (agent.speed == 36)
         {
             anim.SetTrigger("Slow");
