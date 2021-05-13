@@ -6,7 +6,6 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
 
-//NOTE SPPED-EK VÁLTOZTATÁSA MAP MÉRETTŐL FÜGGŐEN
 public class Monster : MonoBehaviour
 {
     public GameObject destination;
@@ -27,9 +26,6 @@ public class Monster : MonoBehaviour
 
     GameObject player;
 
-    //CODE FOR UNSTUCKING
-    //NavMeshPath navMeshPath;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -38,9 +34,6 @@ public class Monster : MonoBehaviour
         ran = new System.Random();
         next = 0;
         anim = GetComponent<Animator>();
-
-        //CODE FOR UNSTUCKING
-       // navMeshPath = new NavMeshPath();
     }
 
     // Update is called once per frame
@@ -49,7 +42,7 @@ public class Monster : MonoBehaviour
 
         if (next == 0)
         {
-            //TODO THIS WILL BE THE PLAYER'S COORDINATES
+            // PLAYER'S COORDINATES
             agent.SetDestination(player.transform.position);
 
             Vector3 dir = player.transform.position - transform.position;
@@ -100,9 +93,6 @@ public class Monster : MonoBehaviour
                  
 
                 Debug.Log("LIGHT COLLISION");
-
-              //  xPos = Random.Range(xPos_MIN, xPos_MAX);
-               // zPos = Random.Range(zPos_MIN, zPos_MAX);
 
                 agent.speed = 36;
 
