@@ -102,8 +102,6 @@ public class Monster : MonoBehaviour
 
                 agent.SetDestination(destination.transform.position);
 
-                //TODO MONSTER SCREAM.PLAY
-
                 next = ran.Next(1, 5);
 
                 return;
